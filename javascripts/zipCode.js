@@ -1,5 +1,15 @@
 "use strict";
 
+let currentZip = '';
+
+const setCurrentZip = (zip) => {
+    currentZip = zip; 
+};
+
+const getCurrentZip = () => {
+    return currentZip; 
+};
+
 const isValidUSZip = (zipString) => {
     return /^\d{5}(-\d{4})?$/.test(zipString);
 };
@@ -14,4 +24,8 @@ const validateZip = (zipString) => {
 }; 
 
 
-module.exports = {validateZip}; 
+module.exports = {
+    validateZip,
+    setCurrentZip,
+    getCurrentZip
+}; 
