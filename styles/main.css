@@ -1,0 +1,6 @@
+.forecast-row {
+  line-height: 46px;
+  text-align: center; }
+
+.day-row {
+  border-bottom: 1px solid #ddd; }

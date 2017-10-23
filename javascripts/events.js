@@ -31,14 +31,14 @@ const validateAndSearchZip = () => {
 const threeDayForecastClick = () => {
     $('body').on("click", '#three-day-btn', ((e) => {
         transferActivePill(e.target); 
-        weather.getForecast(zipCode.getCurrentZip());           
+        weather.getForecast(zipCode.getCurrentZip(), 3);           
     }));
 };
 
 const fiveDayForecastClick = () => {
     $('body').on("click", '#five-day-btn', ((e) => {
         transferActivePill(e.target); 
-        weather.getForecast(zipCode.getCurrentZip()); 
+        weather.getForecast(zipCode.getCurrentZip(), 5); 
     }));
 };
 

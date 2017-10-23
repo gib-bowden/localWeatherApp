@@ -23,7 +23,7 @@ const searchCurrentWeather = (searchString) => {
 
 const getWeather = function (searchString) {
     searchCurrentWeather(searchString).then( function (data) {
-        dom.domString(data, weatherApiKey);   
+        dom.domString(data);   
     }).catch((error) => {
         console.log(error);
     });
@@ -46,10 +46,10 @@ const searchForecast = (searchString) => {
     });
 };
 
-const getForecast = (searchString) => {
+const getForecast = (searchString, numOfDays) => {
     searchForecast(searchString).then((data) => {
         console.log(data);
-        dom.forecastList(data.list); 
+        dom.forecastList(data.list, numOfDays); 
     }).catch((error) => {
         console.log(error); 
     });
