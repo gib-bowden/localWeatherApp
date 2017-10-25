@@ -6,6 +6,7 @@ const weather = require('./weather');
 const zipSearchField = $("#zip-search-field"); 
 const zipSubmitBtn = $("#zip-submit-btn"); 
 const weatherOptions = $("#weather-options"); 
+const forecastContainer = $("#forecast-container"); 
 
 const pressEnter = () => {
     $('body').keypress((e) => {
@@ -25,6 +26,7 @@ const validateAndSearchZip = () => {
     if (zipCode.validateZip(zipSearchField.val())) {
         zipCode.setCurrentZip(zipSearchField.val()); 
         weather.getWeather(zipCode.getCurrentZip()); 
+        forecastContainer.empty(); 
     }
 };
 
@@ -61,4 +63,8 @@ const transferActivePill = (target) => {
 
 
 
-module.exports = {pressEnter, clickSubmit, threeDayForecastClick, fiveDayForecastClick}; 
+module.exports = {pressEnter, 
+    clickSubmit, 
+    threeDayForecastClick, 
+    fiveDayForecastClick
+}; 
