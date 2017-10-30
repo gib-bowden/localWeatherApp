@@ -18,10 +18,10 @@ const domString = (obj) => {
                         <h3>Current weather for ${obj.name}
                         <img src="https://openweathermap.org/img/w/${obj.weather[0].icon}.png" alt="icon">
                         </h3>
-                        <p>Tempurature: ${obj.main.temp}</p> 
+                        <p>Tempurature: ${roundNumStr(obj.main.temp)}<sup> °</sup>F</p> 
                         <p>Conditions: ${obj.weather[0].main}</p> 
-                        <p>Pressure: ${obj.main.pressure}</p> 
-                        <p>Wind Speed: ${obj.wind.speed}</p> 
+                        <p>Pressure: ${obj.main.pressure} hPa</p> 
+                        <p>Wind Speed: ${roundNumStr(obj.wind.speed)} MPH ${degToCompass(obj.wind.deg)}</p> 
                     </div>
                 </div>`;
     printToDom(weatherString); 
@@ -34,45 +34,9 @@ const printToDom = (str) => {
 };
 
 
-// const forecastList = (arr, numOfDays) => {
-//     let currentDay = '';
-//     let previousDay = '';
-//     let forecastString = '';
-//     let numberOfIterations = (8 * numOfDays); 
-//     arr.forEach((hour, index) => {
-//         if (index <= numberOfIterations) {
-//             currentDay =  moment.utc(hour.dt_txt).local().format('DD');
-//             let isNewDay = (currentDay !== previousDay) ? true : false;
-//             if (isNewDay) {
-//                 forecastString += 
-//                 `<div class="row">
-//                     <div class="col-xs-3 col-xs-offset-4 forecast-row day-row">${moment.utc(hour.dt_txt).local().format('dddd[, ]MMMM DD')}</div>
-//                 </div>`;
-//             } 
-//             forecastString += 
-//                 `<div class="row">
-//                     <div class="col-xs-3 col-xs-offset-4 forecast-row">
-//                         <div class="col-xs-3">${moment.utc(hour.dt_txt).local().format('h:mm a')}</div>
-//                         <div class="col-xs-3"><img src="https://openweathermap.org/img/w/${hour.weather[0].icon}.png" alt="icon"></div>
-//                         <div class="col-xs-3">${hour.weather[0].main}</div>
-//                         <div class="col-xs-3">${hour.main.temp}</div>
-//                     </div>            
-//                 </div>`;
-//             previousDay = moment.utc(hour.dt_txt).local().format('DD'); 
-//         }
-//     });
-//     printForecast(forecastString); 
-// };
-
-// const printForecast = (str) => {
-//     forecastDiv.html(str);
-// };
-
-
-
-
 
 const forecastList = (arr, numOfDays) => {
+    let today = moment().local().format('DD');
     let currentDay = '';
     let previousDay = '';
     let forecastString = '';
@@ -83,28 +47,33 @@ const forecastList = (arr, numOfDays) => {
             currentDay =  moment.utc(hour.dt_txt).local().format('DD');
             let isNewDay = (currentDay !== previousDay) ? true : false;
             if (isNewDay) {
+                let panelTitleText = (currentDay === today) ? "Today" : moment.utc(hour.dt_txt).local().format('dddd[, ]MMMM DD');
                 forecastString += 
                 `<div class="panel-group">
                     <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h4 class="panel-title">
-                                <div data-toggle="collapse" data-target="#day${dayCount}"class="">${moment.utc(hour.dt_txt).local().format('dddd[, ]MMMM DD')}</div>
+                        <div class="panel-heading" data-toggle="collapse" data-target="#day${dayCount}">
+                            <h4 class="panel-title">${panelTitleText}
                             </h4>
                         </div>
                         <div id="day${dayCount}" class="panel-collapse collapse ">
                             <div class="row forecast-row header-row">
-                                <div class="col-xs-3">Hour</div>
-                                <div class="col-xs-6">Conditions</div>
-                                <div class="col-xs-3">Tempurature</div>
+                                <div class="col-xs-2">Time</div>
+                                <div class="col-xs-2">Conditions</div>
+                                <div class="col-xs-2">Tempurature</div>
+                                <div class="col-xs-2">Humidity</div>
+                                <div class="col-xs-2">Wind</div>
+                                <div class="col-xs-2"></div>
                             </div>`;
                 dayCount ++; 
             } 
             forecastString += 
                             `<div class="row forecast-row">
-                                <div class="col-xs-3">${moment.utc(hour.dt_txt).local().format('h:mm a')}</div>
-                                <div class="col-xs-3"><img src="https://openweathermap.org/img/w/${hour.weather[0].icon}.png" alt="icon"></div>
-                                <div class="col-xs-3">${hour.weather[0].main}</div>
-                                <div class="col-xs-3">${hour.main.temp}</div>
+                                <div class="col-xs-2">${moment.utc(hour.dt_txt).local().format('h:mm a')}</div>
+                                <div class="col-xs-2"><img src="https://openweathermap.org/img/w/${hour.weather[0].icon}.png" alt="icon"> ${hour.weather[0].main}</div>
+                                <div class="col-xs-2">${roundNumStr(hour.main.temp)}<sup> °</sup>F</div>
+                                <div class="col-xs-2">${roundNumStr(hour.main.humidity)}%</div>                                
+                                <div class="col-xs-2">${roundNumStr(hour.wind.speed)} MPH ${degToCompass(hour.wind.deg)}</div> 
+                                <div class="col-xs-2"><button class="btn btn-primary btn-sm">Save</button></div>
                             </div>`;      
             
             if (moment.utc(hour.dt_txt).local().format('h:mm a') === '10:00 pm') {
@@ -112,12 +81,23 @@ const forecastList = (arr, numOfDays) => {
                         `</div>
                     </div>
                 </div>`;
-            } 
+            }
 
             previousDay = moment.utc(hour.dt_txt).local().format('DD'); 
         }
     });
     printForecast(forecastString); 
+};
+
+const roundNumStr = (numStr) => {
+    return Math.round(Number(numStr));
+};
+
+const degToCompass = (numStr) => {
+    let num = Number(numStr);
+    var val = Math.floor((num / 22.5) + 0.5);
+    var arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+    return arr[(val % 16)];
 };
 
 const printForecast = (str) => {
@@ -154,15 +134,17 @@ const printForecast = (str) => {
 
 
 
+
 module.exports = {
     domString,
     forecastList
 };
-},{"../lib/node_modules/moment/moment.js":6}],2:[function(require,module,exports){
+},{"../lib/node_modules/moment/moment.js":7}],2:[function(require,module,exports){
 "use strict";
 
 const zipCode = require('./zipCode');
 const weather = require('./weather');
+const firebaseApi = require('./firebaseApi');
 
 const zipSearchField = $("#zip-search-field"); 
 const zipSubmitBtn = $("#zip-submit-btn"); 
@@ -223,13 +205,116 @@ const transferActivePill = (target) => {
 };
 
 
+const init = () => {
+    pressEnter();
+    clickSubmit();
+    threeDayForecastClick();
+    fiveDayForecastClick();
+};
 
-module.exports = {pressEnter, 
-    clickSubmit, 
-    threeDayForecastClick, 
-    fiveDayForecastClick
+const googleAuth = () => {
+    $('#google-btn').click((e) => {
+        firebaseApi.authenticateGoogle().then((results) => {
+            console.log(results); 
+        }).catch((error) => {
+            console.log(error); 
+        }); 
+    });
+};
+
+
+module.exports = {
+    init
 }; 
-},{"./weather":4,"./zipCode":5}],3:[function(require,module,exports){
+},{"./firebaseApi":3,"./weather":5,"./zipCode":6}],3:[function(require,module,exports){
+"use strict";
+
+let firebaseObj = {};
+let userUid = ''; 
+
+const setObject = (obj) => {
+    firebaseObj = obj;
+};
+
+//Firebase: GOOGLE - Use input credentials to authenticate user.
+let authenticateGoogle = () => {
+    return new Promise((resolve, reject) => {
+      var provider = new firebase.auth.GoogleAuthProvider();
+      firebase.auth().signInWithPopup(provider)
+        .then((authData) => {
+            userUid = authData.user.uid;
+            localStorage.setItem("localWeatherAppGoogleAuthUserUid", authData.user.uid); 
+            resolve(authData.user);
+        }).catch((error) => {
+            reject(error);
+        });
+    });
+  };
+
+
+  const checkForStoredUserUid = () => {
+    if (localStorage.getItem("localWeatherAppGoogleAuthUserUid")) {
+        userUid = localStorage.getItem("localWeatherAppGoogleAuthUserUid");
+    }
+}; 
+
+  const getForecastList = () => {
+    let forecasts = []; 
+    let key = ''; 
+    return new Promise((resolve, reject) => {
+        var provider = new firebase.auth.GoogleAuthProvider();
+        $.ajax(`${firebaseObj.databaseURL}/forecasts.json?orderBy="uid"&equalTo="${userUid}"`).then((fbForecasts) => {
+            if (fbForecasts !== null) {
+                Object.keys(fbForecasts).forEach((key) => {
+                    fbForecasts[key].id = key;
+                    forecasts.push(fbForecasts[key]);
+                }); 
+            }
+            resolve(forecasts); 
+        }).catch((err) => {
+            reject(err); 
+        });
+    });
+  };
+
+
+  const saveForecast = (newForecastObj) => {
+    newForecastObj.uid = userUid;
+    return new Promise ((resolve, reject) => {
+        $.ajax({
+            type: "POST",
+            url: `${firebaseObj.databaseURL}/forecasts.json`,
+            data: JSON.stringify(newForecastObj)
+        }).then((result) => {
+            resolve(result); 
+        }).catch((err) => {
+            reject(err); 
+        });
+    });
+  };
+
+  const deleteForecast = (movieId) => {
+    return new Promise ((resolve, reject) => {
+        $.ajax({
+            type: "DELETE",
+            url: `${firebaseObj.databaseURL}/forecasts/${movieId}.json`,
+        }).then((result) => {
+            resolve(result); 
+        }).catch((err) => {
+            reject(err); 
+        });
+    });
+  };
+
+module.exports = {
+    setObject,
+    authenticateGoogle,
+    getForecastList,
+    checkForStoredUserUid,
+    saveForecast,
+    deleteForecast
+};
+},{}],4:[function(require,module,exports){
 "use strict";
 
 const events = require('./events');
@@ -237,23 +322,21 @@ const weather = require('./weather');
 
 
 $(document).ready(() => {
-    weather.retrieveWeatherKey(); 
-    events.clickSubmit();
-    events.pressEnter(); 
-    events.threeDayForecastClick();
-    events.fiveDayForecastClick();
+    weather.retrieveKeys(); 
+    events.init();
 });
-},{"./events":2,"./weather":4}],4:[function(require,module,exports){
+},{"./events":2,"./weather":5}],5:[function(require,module,exports){
 "use strict";
 
 const dom = require('./dom');
+const firebaseApi = require('./firebaseApi');
 
 let weatherApiKey = '';
 
 const searchCurrentWeather = (searchString) => {
     return new Promise ((resolve, reject) => {
         $.ajax({
-            url: `https://api.openweathermap.org/data/2.5/weather`,
+            url: `https://api.openweathermap.org/data/2.5/weather`, 
             data: {
                 "zip": searchString,
                 "appid": weatherApiKey,
@@ -307,16 +390,18 @@ const getWeatherApiKey = () => {
         $.ajax({
             url: `db/apiKeys.json`
         }).done((data) => {
-            resolve(data.openWeatherMap.apiKey); 
+            resolve(data); 
         }).fail((error) => {
             reject(error); 
         });
     });
 };
 
-const retrieveWeatherKey = () => {
+const retrieveKeys = () => {
     getWeatherApiKey().then((result) => {        
-        setWeatherKey(result);
+        setWeatherKey(result.openWeatherMap.apiKey);
+        firebaseApi.setObject(result.firebase);
+        firebase.initializeApp(result.firebase);
     }).catch((error) => {
         console.log(error); 
     });
@@ -329,9 +414,9 @@ const setWeatherKey = (key) => {
 module.exports = {
     getWeather,
     getForecast,
-    retrieveWeatherKey
+    retrieveKeys
 }; 
-},{"./dom":1}],5:[function(require,module,exports){
+},{"./dom":1,"./firebaseApi":3}],6:[function(require,module,exports){
 "use strict";
 
 let currentZip = '';
@@ -363,7 +448,7 @@ module.exports = {
     setCurrentZip,
     getCurrentZip
 }; 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 //! moment.js
 //! version : 2.19.1
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
@@ -4879,4 +4964,4 @@ return hooks;
 
 })));
 
-},{}]},{},[3]);
+},{}]},{},[4]);
