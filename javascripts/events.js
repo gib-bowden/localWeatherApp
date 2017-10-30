@@ -2,6 +2,7 @@
 
 const zipCode = require('./zipCode');
 const weather = require('./weather');
+const firebaseApi = require('./firebaseApi');
 
 const zipSearchField = $("#zip-search-field"); 
 const zipSubmitBtn = $("#zip-submit-btn"); 
@@ -62,9 +63,24 @@ const transferActivePill = (target) => {
 };
 
 
+const init = () => {
+    pressEnter();
+    clickSubmit();
+    threeDayForecastClick();
+    fiveDayForecastClick();
+};
 
-module.exports = {pressEnter, 
-    clickSubmit, 
-    threeDayForecastClick, 
-    fiveDayForecastClick
+const googleAuth = () => {
+    $('#google-btn').click((e) => {
+        firebaseApi.authenticateGoogle().then((results) => {
+            console.log(results); 
+        }).catch((error) => {
+            console.log(error); 
+        }); 
+    });
+};
+
+
+module.exports = {
+    init
 }; 
